@@ -35,12 +35,12 @@ jobs:
           async function run() {
             const apiKey = process.env.FOOTBALL_API_KEY;
             const hoy = new Date().toISOString().split('T')[0];
-            console.log('Buscando eventos para la fecha:', hoy);
+            console.log('=== BUSCANDO PARTIDOS EN LA API PARA LA FECHA:', hoy, '===');
 
-            // Ligas prioritarias de fútbol
-            const ligasClave = [2, 3, 39, 140, 135, 13, 11, 281, 34];
             let partidosAcumulados = [];
 
+            // 1. Intento por ligas principales
+            const ligasClave = [2, 3, 39, 140, 135, 13, 11, 281, 34];
             for (const leagueId of ligasClave) {
               try {
                 const url = \`https://v3.football.api-sports.io/fixtures?date=\${hoy}&league=\${leagueId}\`;
@@ -49,12 +49,12 @@ jobs:
                 if (data.response && data.response.length > 0) {
                   partidosAcumulados = partidosAcumulados.concat(data.response);
                 }
-              } catch (e) {
-                console.error('Error cargando liga ' + leagueId, e);
-              }
+              } catch (e) {}
             }
 
+            // 2. Si no hay en esas ligas hoy, trae la lista general del día
             if (partidosAcumulados.length === 0) {
+              console.log('No hubo en ligas clave, haciendo búsqueda general del día...');
               try {
                 const res = await fetch(\`https://v3.football.api-sports.io/fixtures?date=\${hoy}\`, {
                   headers: { 'x-apisports-key': apiKey }
@@ -62,15 +62,17 @@ jobs:
                 const data = await res.json();
                 partidosAcumulados = data.response || [];
               } catch (e) {
-                console.error('Error en búsqueda general', e);
+                console.error('Error general:', e);
               }
             }
+
+            console.log('>>> TOTAL PARTIDOS OBTENIDOS DE LA API:', partidosAcumulados.length);
 
             let html = fs.readFileSync('index.html', 'utf8');
 
             if (partidosAcumulados.length > 0) {
               let cardsHtml = '';
-              partidosAcumulados.slice(0, 12).forEach((p, idx) => {
+              partidosAcumulados.slice(0, 10).forEach((p, idx) => {
                 const hora = new Date(p.fixture.date).toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Lima' });
                 cardsHtml += \`
                 <div class=\"match-card bg-slate-900 border border-slate-800 hover:border-sky-500/50 rounded-2xl p-5 shadow-xl transition my-4\" data-team=\"\${p.teams.home.name.toLowerCase()} \${p.teams.away.name.toLowerCase()}\">
@@ -89,7 +91,7 @@ jobs:
                     <div id=\"details-dynamic-\${idx}\" class=\"hidden mt-4 pt-4 border-t border-slate-800 space-y-4\">
                         <div class=\"bg-slate-950 rounded-xl p-3 border border-sky-900/40 text-xs\">
                             <span class=\"font-bold text-sky-400 uppercase\">🧠 Dictamen IA:</span>
-                            <p class=\"text-slate-300 text-[11px] mt-1\">Tendencia estadística calculada automáticamente para \${p.teams.home.name} vs \${p.teams.away.name}.</p>
+                            <p class=\"text-slate-300 text-[11px] mt-1\">Predicción automatizada para \${p.teams.home.name} vs \${p.teams.away.name}.</p>
                         </div>
                     </div>
                 </div>\`;
@@ -97,7 +99,9 @@ jobs:
 
               html = html.replace(/<div id=\"api-matches-dynamic\">[\s\S]*?<\/div>/, \`<div id=\"api-matches-dynamic\">\${cardsHtml}</div>\`);
               fs.writeFileSync('index.html', html);
-              console.log('¡index.html actualizado exitosamente!');
+              console.log('¡INDEX.HTML REEMPLAZADO CON ÉXITO!');
+            } else {
+              console.log('⚠️ LA API DEVOLVIÓ 0 PARTIDOS PARA LA FECHA DE HOY.');
             }
           }
           run();
@@ -108,5 +112,5 @@ jobs:
           git config --global user.name "GitHub Action Robot"
           git config --global user.email "action@github.com"
           git add index.html
-          git commit -m "🤖 Actualización automática con 5 horarios estratégicos" || exit 0
+          git commit -m "🤖 Actualización automática con partidos en vivo" || exit 0
           git push
