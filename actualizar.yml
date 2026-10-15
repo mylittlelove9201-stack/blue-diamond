@@ -6,7 +6,6 @@ on:
     - cron: '0 17 * * *'
     - cron: '0 21 * * *'
     - cron: '30 0 * * *'
-    - cron: '0 4 * * *'
   workflow_dispatch:
 
 permissions:
@@ -40,28 +39,23 @@ jobs:
             const hoy = new Date().toISOString().split('T')[0];
             console.log('=== FECHA DE BÚSQUEDA:', hoy, '===');
 
+            // Ligas top de Football-Data.org (1 sola petición trae todas)
+            const competiciones = ['PL','PD','SA','BL1','FL1','CL','DED','PPL','BSA','EC','WC','CLI'];
             let partidosAcumulados = [];
-            const ligasClave = [2, 3, 39, 140, 135, 13, 11, 281, 34];
 
-            for (const leagueId of ligasClave) {
-              try {
-                const url = \`https://v3.football.api-sports.io/fixtures?date=\${hoy}&league=\${leagueId}\`;
-                const res = await fetch(url, { headers: { 'x-apisports-key': apiKey } });
-                const data = await res.json();
-                if (data.response && data.response.length > 0) {
-                  partidosAcumulados = partidosAcumulados.concat(data.response);
-                }
-              } catch (e) {}
-            }
-
-            if (partidosAcumulados.length === 0) {
-              try {
-                const res = await fetch(\`https://v3.football.api-sports.io/fixtures?date=\${hoy}\`, {
-                  headers: { 'x-apisports-key': apiKey }
-                });
-                const data = await res.json();
-                partidosAcumulados = data.response || [];
-              } catch (e) {}
+            try {
+              const url = 'https://api.football-data.org/v4/matches?dateFrom=' + hoy + '&dateTo=' + hoy;
+              console.log('Petición:', url);
+              const res = await fetch(url, { headers: { 'X-Auth-Token': apiKey } });
+              const data = await res.json();
+              console.log('Status HTTP:', res.status);
+              if (data.matches && data.matches.length > 0) {
+                partidosAcumulados = data.matches;
+              } else {
+                console.log('Respuesta:', JSON.stringify(data).substring(0, 300));
+              }
+            } catch (e) {
+              console.log('❌ ERROR:', e.message);
             }
 
             console.log('TOTAL PARTIDOS OBTENIDOS:', partidosAcumulados.length);
@@ -69,24 +63,29 @@ jobs:
             let html = fs.readFileSync('index.html', 'utf8');
 
             if (!html.includes('id=\"api-matches-dynamic\"')) {
-              console.error('❌ ERROR: Falta <div id=\"api-matches-dynamic\"></div> en index.html');
+              console.error('❌ Falta <div id=\"api-matches-dynamic\"></div>');
               process.exit(1);
             }
 
             if (partidosAcumulados.length > 0) {
               let cardsHtml = '';
               partidosAcumulados.slice(0, 10).forEach((p, idx) => {
-                const hora = new Date(p.fixture.date).toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Lima' });
+                const fecha = new Date(p.utcDate);
+                const hora = fecha.toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Lima' });
+                const local = p.homeTeam.name || 'Local';
+                const visita = p.awayTeam.name || 'Visitante';
+                const liga = p.competition.name || 'Torneo';
+
                 cardsHtml += \`
-                <div class=\"match-card bg-slate-900 border border-slate-800 hover:border-sky-500/50 rounded-2xl p-5 shadow-xl transition my-4\" data-team=\"\${p.teams.home.name.toLowerCase()} \${p.teams.away.name.toLowerCase()}\">
+                <div class=\"match-card bg-slate-900 border border-slate-800 hover:border-sky-500/50 rounded-2xl p-5 shadow-xl transition my-4\" data-team=\"\${local.toLowerCase()} \${visita.toLowerCase()}\">
                     <div class=\"flex justify-between items-center text-xs text-slate-400 border-b border-slate-800/80 pb-2.5\">
-                        <span class=\"font-semibold text-sky-400 flex items-center gap-1\">⚽ \${p.league.name.toUpperCase()} (\${p.league.country})</span>
+                        <span class=\"font-semibold text-sky-400 flex items-center gap-1\">⚽ \${liga.toUpperCase()}</span>
                         <span class=\"font-mono text-amber-400 font-bold\">\${hora} (Hora Perú)</span>
                     </div>
                     <div class=\"flex justify-between items-center my-4 px-2\">
-                        <div class=\"text-center font-bold text-base md:text-lg w-2/5 text-white\">\${p.teams.home.name}</div>
+                        <div class=\"text-center font-bold text-base md:text-lg w-2/5 text-white\">\${local}</div>
                         <div class=\"text-xs font-extrabold px-3 py-1 bg-slate-800 rounded-full text-sky-400 border border-sky-900\">VS</div>
-                        <div class=\"text-center font-bold text-base md:text-lg w-2/5 text-white\">\${p.teams.away.name}</div>
+                        <div class=\"text-center font-bold text-base md:text-lg w-2/5 text-white\">\${visita}</div>
                     </div>
                     <button onclick=\"toggleDetails('details-dynamic-\${idx}')\" class=\"w-full bg-slate-950 hover:bg-slate-800 border border-slate-800 text-sky-400 text-xs py-2 rounded-xl font-bold transition flex items-center justify-center gap-2\">
                         <span>📊</span> Ver Análisis Completo y Combinadas Sugeridas
@@ -94,17 +93,17 @@ jobs:
                     <div id=\"details-dynamic-\${idx}\" class=\"hidden mt-4 pt-4 border-t border-slate-800 space-y-4\">
                         <div class=\"bg-slate-950 rounded-xl p-3 border border-sky-900/40 text-xs\">
                             <span class=\"font-bold text-sky-400 uppercase\">🧠 Dictamen IA:</span>
-                            <p class=\"text-slate-300 text-[11px] mt-1\">Predicción automatizada para \${p.teams.home.name} vs \${p.teams.away.name}.</p>
+                            <p class=\"text-slate-300 text-[11px] mt-1\">Predicción automatizada para \${local} vs \${visita}.</p>
                         </div>
                     </div>
                 </div>\`;
               });
 
-              html = html.replace(/<div id=\"api-matches-dynamic\">[\s\S]*?<\/div>/, \`<div id=\"api-matches-dynamic\">\${cardsHtml}</div>\`);
+              html = html.replace(/<div id=\"api-matches-dynamic\">[\s\S]*?<!-- DATOS_API -->/, \`<div id=\"api-matches-dynamic\">\${cardsHtml}<!-- DATOS_API -->\`);
               fs.writeFileSync('index.html', html);
-              console.log('✅ index.html actualizado localmente.');
+              console.log('✅ index.html actualizado.');
             } else {
-              console.log('⚠️ No hay partidos hoy.');
+              console.log('⚠️ No hay partidos hoy en las ligas configuradas.');
             }
           }
           run();
