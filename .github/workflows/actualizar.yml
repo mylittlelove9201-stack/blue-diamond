@@ -37,7 +37,7 @@ jobs:
             const hoy = new Date().toISOString().split('T')[0];
             console.log('Buscando eventos para la fecha:', hoy);
 
-            // Ligas prioritarias de fútbol (Champions, Premier, LaLiga, Serie A, Libertadores, Sudamericana, Liga 1 Perú, Eliminatorias)
+            // Ligas prioritarias de fútbol
             const ligasClave = [2, 3, 39, 140, 135, 13, 11, 281, 34];
             let partidosAcumulados = [];
 
@@ -54,7 +54,6 @@ jobs:
               }
             }
 
-            // Si no hay de ligas principales, busca la lista general del día
             if (partidosAcumulados.length === 0) {
               try {
                 const res = await fetch(\`https://v3.football.api-sports.io/fixtures?date=\${hoy}\`, {
@@ -66,8 +65,6 @@ jobs:
                 console.error('Error en búsqueda general', e);
               }
             }
-
-            console.log('Total partidos encontrados:', partidosAcumulados.length);
 
             let html = fs.readFileSync('index.html', 'utf8');
 
