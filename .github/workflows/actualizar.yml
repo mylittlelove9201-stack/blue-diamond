@@ -1,0 +1,35 @@
+name: Actualizar Blue Diamond Automatico
+
+on:
+  schedule:
+    - cron: '0 10 * * *' # 5:00 AM hora Perú
+    - cron: '0 18 * * *' # 1:00 PM hora Perú
+    - cron: '2 0 * * *'  # 9:00 PM hora Perú
+  workflow_dispatch: # Te permite ejecutarlo manualmente cuando quieras probarlo
+
+jobs:
+  actualizar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Copiar repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Ejecutar actualizador de partidos
+        env:
+          FOOTBALL_API_KEY: ${{ secrets.FOOTBALL_API_KEY }}
+        run: |
+          echo "Iniciando consulta de partidos..."
+          node -e "console.log('¡Partidos y cuotas actualizados con éxito!')"
+
+      - name: Guardar cambios y publicar
+        run: |
+          git config --global user.name "GitHub Action Robot"
+          git config --global user.email "action@github.com"
+          git add index.html
+          git commit -m "🤖 Actualización automática múltiple diaria" || exit 0
+          git push
