@@ -78,142 +78,96 @@
                 <!-- SECTION: FÚTBOL -->
                 <div class="sport-section space-y-4" id="section-futbol">
                     
-                    <!-- Partido 1 Fútbol -->
-                    <div class="match-card bg-slate-900 border border-slate-800 hover:border-sky-500/50 rounded-2xl p-5 shadow-xl transition" data-team="manchester city real madrid">
-                        <div class="flex justify-between items-center text-xs text-slate-400 border-b border-slate-800/80 pb-2.5">
-                            <span class="font-semibold text-sky-400 flex items-center gap-1">⚽ CHAMPIONS LEAGUE</span>
-                            <span class="font-mono text-amber-400 font-bold">Hoy 3:00 PM (Hora Perú)</span>
-                        </div>
+                    <!-- Marcador de Datos API (Aquí se actualizarán los partidos automáticamente) -->
+                    <div id="api-matches-dynamic">
+                        <!-- Partido Estándar de Muestra (Manchester City vs Real Madrid) -->
+                        <div class="match-card bg-slate-900 border border-slate-800 hover:border-sky-500/50 rounded-2xl p-5 shadow-xl transition" data-team="manchester city real madrid">
+                            <div class="flex justify-between items-center text-xs text-slate-400 border-b border-slate-800/80 pb-2.5">
+                                <span class="font-semibold text-sky-400 flex items-center gap-1">⚽ CHAMPIONS LEAGUE</span>
+                                <span class="font-mono text-amber-400 font-bold">Hoy 3:00 PM (Hora Perú)</span>
+                            </div>
 
-                        <div class="flex justify-between items-center my-4 px-2">
-                            <div class="text-center font-bold text-base md:text-lg w-2/5 text-white">Manchester City</div>
-                            <div class="text-xs font-extrabold px-3 py-1 bg-slate-800 rounded-full text-sky-400 border border-sky-900">VS</div>
-                            <div class="text-center font-bold text-base md:text-lg w-2/5 text-white">Real Madrid</div>
-                        </div>
+                            <div class="flex justify-between items-center my-4 px-2">
+                                <div class="text-center font-bold text-base md:text-lg w-2/5 text-white">Manchester City</div>
+                                <div class="text-xs font-extrabold px-3 py-1 bg-slate-800 rounded-full text-sky-400 border border-sky-900">VS</div>
+                                <div class="text-center font-bold text-base md:text-lg w-2/5 text-white">Real Madrid</div>
+                            </div>
 
-                        <button onclick="toggleDetails('details-fb-1')" class="w-full bg-slate-950 hover:bg-slate-800 border border-slate-800 text-sky-400 text-xs py-2 rounded-xl font-bold transition flex items-center justify-center gap-2">
-                            <span>📊</span> Ver Análisis Completo y Combinadas Sugeridas
-                        </button>
+                            <button onclick="toggleDetails('details-fb-1')" class="w-full bg-slate-950 hover:bg-slate-800 border border-slate-800 text-sky-400 text-xs py-2 rounded-xl font-bold transition flex items-center justify-center gap-2">
+                                <span>📊</span> Ver Análisis Completo y Combinadas Sugeridas
+                            </button>
 
-                        <!-- Detalle Desplegable -->
-                        <div id="details-fb-1" class="hidden mt-4 pt-4 border-t border-slate-800 space-y-4">
-                            
-                            <!-- SECCIÓN NUEVA: COMBINADAS SUGERIDAS POR LA IA (MÁX. 2-3 MERCADOS) -->
-                            <div class="bg-gradient-to-r from-sky-950/80 via-slate-950 to-slate-950 p-4 rounded-xl border border-sky-800/60 space-y-3">
-                                <h4 class="font-extrabold text-sky-300 text-xs flex items-center gap-1.5 uppercase tracking-wider">
-                                    <span>💎</span> Combinadas Recomendadas por IA (Máx. 3 Mercados)
-                                </h4>
+                            <!-- Detalle Desplegable -->
+                            <div id="details-fb-1" class="hidden mt-4 pt-4 border-t border-slate-800 space-y-4">
                                 
+                                <div class="bg-gradient-to-r from-sky-950/80 via-slate-950 to-slate-950 p-4 rounded-xl border border-sky-800/60 space-y-3">
+                                    <h4 class="font-extrabold text-sky-300 text-xs flex items-center gap-1.5 uppercase tracking-wider">
+                                        <span>💎</span> Combinadas Recomendadas por IA (Máx. 3 Mercados)
+                                    </h4>
+                                    
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+                                        <div class="bg-slate-900/90 p-3 rounded-lg border border-sky-900/40">
+                                            <div class="flex justify-between items-center mb-1.5">
+                                                <span class="font-bold text-amber-400">🔥 Opción A: Goles + Resultado</span>
+                                                <span class="bg-emerald-950 text-emerald-400 text-[10px] font-bold px-2 py-0.5 rounded border border-emerald-800">84% Confianza</span>
+                                            </div>
+                                            <ul class="text-slate-300 text-[11px] space-y-1 list-disc list-inside">
+                                                <li>Doble Oportunidad: 1X (Man. City o Empate)</li>
+                                                <li>Over 1.5 Goles Totales</li>
+                                                <li>Ambos reciben tarjeta: SÍ</li>
+                                            </ul>
+                                        </div>
+
+                                        <div class="bg-slate-900/90 p-3 rounded-lg border border-sky-900/40">
+                                            <div class="flex justify-between items-center mb-1.5">
+                                                <span class="font-bold text-sky-400">🚩 Opción B: Córners + Remates</span>
+                                                <span class="bg-emerald-950 text-emerald-400 text-[10px] font-bold px-2 py-0.5 rounded border border-emerald-800">81% Confianza</span>
+                                            </div>
+                                            <ul class="text-slate-300 text-[11px] space-y-1 list-disc list-inside">
+                                                <li>Over 7.5 Córners Totales</li>
+                                                <li>Man. City > 4.5 Tiros a Puerta</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
-                                    <!-- Combinada A: Goles / Resultado -->
-                                    <div class="bg-slate-900/90 p-3 rounded-lg border border-sky-900/40">
-                                        <div class="flex justify-between items-center mb-1.5">
-                                            <span class="font-bold text-amber-400">🔥 Opción A: Goles + Resultado</span>
-                                            <span class="bg-emerald-950 text-emerald-400 text-[10px] font-bold px-2 py-0.5 rounded border border-emerald-800">84% Confianza</span>
+                                    <div class="bg-slate-950/80 p-3 rounded-xl border border-slate-800">
+                                        <h4 class="font-bold text-sky-400 mb-2">⚽ Línea de Goles (Over / Under)</h4>
+                                        <div class="grid grid-cols-2 gap-2 text-slate-300">
+                                            <div>
+                                                <div class="flex justify-between"><span>+0.5:</span> <strong class="text-emerald-400">96%</strong></div>
+                                                <div class="flex justify-between"><span>+1.5:</span> <strong class="text-emerald-400">85%</strong></div>
+                                                <div class="flex justify-between"><span>+2.5:</span> <strong class="text-amber-400">67%</strong></div>
+                                            </div>
+                                            <div class="border-l border-slate-800 pl-2">
+                                                <div class="flex justify-between"><span>-1.5:</span> <strong class="text-red-400">15%</strong></div>
+                                                <div class="flex justify-between"><span>-2.5:</span> <strong class="text-amber-400">33%</strong></div>
+                                            </div>
                                         </div>
-                                        <ul class="text-slate-300 text-[11px] space-y-1 list-disc list-inside">
-                                            <li>Doble Oportunidad: 1X (Man. City o Empate)</li>
-                                            <li>Over 1.5 Goles Totales</li>
-                                            <li>Ambos reciben tarjeta: SÍ</li>
-                                        </ul>
                                     </div>
+                                    <div class="bg-slate-950/80 p-3 rounded-xl border border-slate-800">
+                                        <h4 class="font-bold text-sky-400 mb-2">🏆 Doble Oportunidad</h4>
+                                        <div class="space-y-1 text-slate-300">
+                                            <div class="flex justify-between"><span>1X (Gana City o Empate):</span> <strong class="text-emerald-400">74%</strong></div>
+                                            <div class="flex justify-between"><span>12 (Cualquiera Gana):</span> <strong class="text-emerald-400">71%</strong></div>
+                                        </div>
+                                    </div>
+                                </div>
 
-                                    <!-- Combinada B: Córners / Tiros -->
-                                    <div class="bg-slate-900/90 p-3 rounded-lg border border-sky-900/40">
-                                        <div class="flex justify-between items-center mb-1.5">
-                                            <span class="font-bold text-sky-400">🚩 Opción B: Córners + Remates</span>
-                                            <span class="bg-emerald-950 text-emerald-400 text-[10px] font-bold px-2 py-0.5 rounded border border-emerald-800">81% Confianza</span>
-                                        </div>
-                                        <ul class="text-slate-300 text-[11px] space-y-1 list-disc list-inside">
-                                            <li>Over 7.5 Córners Totales</li>
-                                            <li>Man. City > 4.5 Tiros a Puerta</li>
-                                        </ul>
+                                <div class="bg-slate-950 rounded-xl p-3 border border-sky-900/40 text-xs">
+                                    <div class="flex justify-between items-center mb-1">
+                                        <span class="font-bold text-sky-400 uppercase">🧠 Dictamen IA</span>
+                                        <span class="font-extrabold text-emerald-400 bg-emerald-950/90 px-2.5 py-0.5 rounded border border-emerald-800">Confianza: 84%</span>
                                     </div>
+                                    <p class="text-slate-300 text-[11px]">Alta tendencia a superar líneas de saques de esquina y remates al arco debido a la presión alta en campo rival.</p>
                                 </div>
-                            </div>
-
-                            <!-- DESGLOSE INDIVIDUAL COMPLETO -->
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
-                                <!-- 1. Goles -->
-                                <div class="bg-slate-950/80 p-3 rounded-xl border border-slate-800">
-                                    <h4 class="font-bold text-sky-400 mb-2">⚽ Línea de Goles (Over / Under)</h4>
-                                    <div class="grid grid-cols-2 gap-2 text-slate-300">
-                                        <div>
-                                            <div class="flex justify-between"><span>+0.5:</span> <strong class="text-emerald-400">96%</strong></div>
-                                            <div class="flex justify-between"><span>+1.5:</span> <strong class="text-emerald-400">85%</strong></div>
-                                            <div class="flex justify-between"><span>+2.5:</span> <strong class="text-amber-400">67%</strong></div>
-                                            <div class="flex justify-between"><span>+3.5:</span> <strong class="text-red-400">42%</strong></div>
-                                        </div>
-                                        <div class="border-l border-slate-800 pl-2">
-                                            <div class="flex justify-between"><span>-1.5:</span> <strong class="text-red-400">15%</strong></div>
-                                            <div class="flex justify-between"><span>-2.5:</span> <strong class="text-amber-400">33%</strong></div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- 2. Doble Oportunidad -->
-                                <div class="bg-slate-950/80 p-3 rounded-xl border border-slate-800">
-                                    <h4 class="font-bold text-sky-400 mb-2">🏆 Doble Oportunidad</h4>
-                                    <div class="space-y-1 text-slate-300">
-                                        <div class="flex justify-between"><span>1X (Gana City o Empate):</span> <strong class="text-emerald-400">74%</strong></div>
-                                        <div class="flex justify-between"><span>12 (Cualquiera Gana):</span> <strong class="text-emerald-400">71%</strong></div>
-                                        <div class="flex justify-between"><span>2X (Gana Madrid o Empate):</span> <strong class="text-amber-400">51%</strong></div>
-                                    </div>
-                                </div>
-                                <!-- 3. Tiros al Arco -->
-                                <div class="bg-slate-950/80 p-3 rounded-xl border border-slate-800">
-                                    <h4 class="font-bold text-sky-400 mb-2">🎯 Tiros al Arco</h4>
-                                    <div class="space-y-1 text-slate-300">
-                                        <div class="flex justify-between"><span>+5.5 Tiros a Puerta:</span> <strong class="text-emerald-400">88%</strong></div>
-                                        <div class="flex justify-between"><span>+6.5 Tiros a Puerta:</span> <strong class="text-emerald-400">76%</strong></div>
-                                        <div class="flex justify-between"><span>+7.5 Tiros a Puerta:</span> <strong class="text-amber-400">59%</strong></div>
-                                    </div>
-                                </div>
-                                <!-- 4. Córners -->
-                                <div class="bg-slate-950/80 p-3 rounded-xl border border-slate-800">
-                                    <h4 class="font-bold text-sky-400 mb-2">🚩 Promedio de Córners</h4>
-                                    <div class="space-y-1 text-slate-300">
-                                        <div class="flex justify-between"><span>+6.5 Córners:</span> <strong class="text-emerald-400">92%</strong></div>
-                                        <div class="flex justify-between"><span>+7.5 Córners:</span> <strong class="text-emerald-400">82%</strong></div>
-                                        <div class="flex justify-between"><span>+8.5 Córners:</span> <strong class="text-amber-400">68%</strong></div>
-                                    </div>
-                                </div>
-                                <!-- 5. Tarjetas -->
-                                <div class="bg-slate-950/80 p-3 rounded-xl border border-slate-800">
-                                    <h4 class="font-bold text-sky-400 mb-2">🟨 Tarjetas</h4>
-                                    <div class="space-y-1 text-slate-300">
-                                        <div class="flex justify-between"><span>+1.5 Tarjetas:</span> <strong class="text-emerald-400">95%</strong></div>
-                                        <div class="flex justify-between"><span>+2.5 Tarjetas:</span> <strong class="text-emerald-400">81%</strong></div>
-                                        <div class="flex justify-between"><span>+3.5 Tarjetas:</span> <strong class="text-amber-400">64%</strong></div>
-                                        <div class="flex justify-between border-t border-slate-800 pt-1 mt-1 text-[11px]">
-                                            <span class="text-slate-400">¿Ambos reciben tarjeta?:</span>
-                                            <strong class="text-emerald-400">SÍ (89%)</strong>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- 6. Offsides -->
-                                <div class="bg-slate-950/80 p-3 rounded-xl border border-slate-800">
-                                    <h4 class="font-bold text-sky-400 mb-2">🚩 Offsides (Fuera de Juego)</h4>
-                                    <div class="space-y-1 text-slate-300">
-                                        <div class="flex justify-between"><span>+2.5 Offsides Totales:</span> <strong class="text-emerald-400">79%</strong></div>
-                                        <div class="flex justify-between"><span>+3.5 Offsides Totales:</span> <strong class="text-amber-400">58%</strong></div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Dictamen IA -->
-                            <div class="bg-slate-950 rounded-xl p-3 border border-sky-900/40 text-xs">
-                                <div class="flex justify-between items-center mb-1">
-                                    <span class="font-bold text-sky-400 uppercase">🧠 Dictamen IA</span>
-                                    <span class="font-extrabold text-emerald-400 bg-emerald-950/90 px-2.5 py-0.5 rounded border border-emerald-800">
-                                        Confianza: 84%
-                                    </span>
-                                </div>
-                                <p class="text-slate-300 text-[11px]">
-                                    Alta tendencia a superar las líneas de saques de esquina y remates al arco debido a la presión alta en campo rival de ambos elencos.
-                                </p>
                             </div>
                         </div>
                     </div>
+
+                    <!-- Comodín para que el robot inyecte los datos reales diarios -->
+                    <!-- DATOS_API -->
 
                 </div>
 
@@ -232,9 +186,7 @@
                             </span>
                         </div>
 
-                        <!-- Lista de Verdes -->
                         <div class="space-y-3 text-xs">
-                            <!-- Acierto 1 (Con desglose individual) -->
                             <div class="bg-slate-950/90 border border-emerald-900/40 p-4 rounded-xl space-y-2">
                                 <div class="flex justify-between items-center border-b border-slate-800 pb-2">
                                     <div>
@@ -245,7 +197,6 @@
                                         🟢 COMBINADA ACIERTADA
                                     </span>
                                 </div>
-                                
                                 <p class="text-slate-400 font-semibold text-[11px]">Mercados Evaluados Individualmente:</p>
                                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-[11px]">
                                     <div class="bg-slate-900 p-2 rounded border border-emerald-900/30 flex justify-between">
@@ -262,7 +213,6 @@
                                     </div>
                                 </div>
                             </div>
-
                         </div>
                     </div>
                 </div>
@@ -283,7 +233,6 @@
                     </p>
                 </div>
 
-                <!-- Input del usuario -->
                 <div>
                     <label class="block text-xs font-bold text-sky-400 mb-1">Escribe tu jugada o ticket:</label>
                     <textarea id="userParlayInput" rows="4" 
@@ -296,7 +245,6 @@
                     <span>⚡</span> Evaluar Confianza con IA
                 </button>
 
-                <!-- Resultado de Evaluación -->
                 <div id="aiEvaluationResult" class="hidden bg-slate-950/90 border border-slate-800 rounded-xl p-4 space-y-2 text-xs transition">
                     <div class="flex justify-between items-center border-b border-slate-800 pb-2">
                         <span class="font-bold text-slate-400">Confianza Evaluada:</span>
