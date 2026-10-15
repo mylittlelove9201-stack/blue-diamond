@@ -2,9 +2,11 @@ name: Actualizar Blue Diamond Automatico
 
 on:
   schedule:
-    - cron: '0 10 * * *' # 5:00 AM hora Perú
-    - cron: '0 18 * * *' # 1:00 PM hora Perú
-    - cron: '2 0 * * *'  # 9:00 PM hora Perú
+    - cron: '0 11 * * *' # 6:00 AM hora Perú (11:00 UTC)
+    - cron: '0 17 * * *' # 12:00 PM hora Perú (17:00 UTC)
+    - cron: '0 21 * * *' # 4:00 PM hora Perú (21:00 UTC)
+    - cron: '30 0 * * *' # 7:30 PM hora Perú (00:30 UTC del día siguiente)
+    - cron: '0 4 * * *'  # 11:00 PM hora Perú (04:00 UTC del día siguiente)
   workflow_dispatch:
 
 jobs:
@@ -22,7 +24,7 @@ jobs:
       - name: Instalar dependencias
         run: npm install node-fetch@2
 
-      - name: Obtener partidos reales y actualizar index.html
+      - name: Descargar partidos multideporte y actualizar web
         env:
           FOOTBALL_API_KEY: ${{ secrets.FOOTBALL_API_KEY }}
         run: |
@@ -33,51 +35,72 @@ jobs:
           async function run() {
             const apiKey = process.env.FOOTBALL_API_KEY;
             const hoy = new Date().toISOString().split('T')[0];
-            console.log('Consultando partidos para la fecha:', hoy);
+            console.log('Buscando eventos para la fecha:', hoy);
 
-            try {
-              const res = await fetch(\`https://v3.football.api-sports.io/fixtures?date=\${hoy}\`, {
-                headers: { 'x-apisports-key': apiKey }
-              });
-              const data = await res.json();
-              const partidos = data.response || [];
-              console.log('Partidos obtenidos:', partidos.length);
+            // Ligas prioritarias de fútbol (Champions, Premier, LaLiga, Serie A, Libertadores, Sudamericana, Liga 1 Perú, Eliminatorias)
+            const ligasClave = [2, 3, 39, 140, 135, 13, 11, 281, 34];
+            let partidosAcumulados = [];
 
-              let html = fs.readFileSync('index.html', 'utf8');
-
-              if (partidos.length > 0) {
-                let cardsHtml = '';
-                partidos.slice(0, 10).forEach((p, idx) => {
-                  const hora = new Date(p.fixture.date).toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Lima' });
-                  cardsHtml += \`
-                  <div class=\"match-card bg-slate-900 border border-slate-800 hover:border-sky-500/50 rounded-2xl p-5 shadow-xl transition my-4\" data-team=\"\${p.teams.home.name.toLowerCase()} \${p.teams.away.name.toLowerCase()}\">
-                      <div class=\"flex justify-between items-center text-xs text-slate-400 border-b border-slate-800/80 pb-2.5\">
-                          <span class=\"font-semibold text-sky-400 flex items-center gap-1\">⚽ \${p.league.name.toUpperCase()}</span>
-                          <span class=\"font-mono text-amber-400 font-bold\">Hoy \${hora} (Hora Perú)</span>
-                      </div>
-                      <div class=\"flex justify-between items-center my-4 px-2\">
-                          <div class=\"text-center font-bold text-base md:text-lg w-2/5 text-white\">\${p.teams.home.name}</div>
-                          <div class=\"text-xs font-extrabold px-3 py-1 bg-slate-800 rounded-full text-sky-400 border border-sky-900\">VS</div>
-                          <div class=\"text-center font-bold text-base md:text-lg w-2/5 text-white\">\${p.teams.away.name}</div>
-                      </div>
-                      <button onclick=\"toggleDetails('details-dynamic-\${idx}')\" class=\"w-full bg-slate-950 hover:bg-slate-800 border border-slate-800 text-sky-400 text-xs py-2 rounded-xl font-bold transition flex items-center justify-center gap-2\">
-                          <span>📊</span> Ver Análisis Completo y Combinadas Sugeridas
-                      </button>
-                      <div id=\"details-dynamic-\${idx}\" class=\"hidden mt-4 pt-4 border-t border-slate-800 space-y-4\">
-                          <div class=\"bg-slate-950 rounded-xl p-3 border border-sky-900/40 text-xs\">
-                              <span class=\"font-bold text-sky-400 uppercase\">🧠 Dictamen IA:</span>
-                              <p class=\"text-slate-300 text-[11px] mt-1\">Análisis estadístico generado automáticamente para \${p.teams.home.name} vs \${p.teams.away.name}.</p>
-                          </div>
-                      </div>
-                  </div>\`;
-                });
-
-                html = html.replace(/<div id=\"api-matches-dynamic\">[\s\S]*?<\/div>/, \`<div id=\"api-matches-dynamic\">\${cardsHtml}</div>\`);
-                fs.writeFileSync('index.html', html);
-                console.log('index.html actualizado exitosamente.');
+            for (const leagueId of ligasClave) {
+              try {
+                const url = \`https://v3.football.api-sports.io/fixtures?date=\${hoy}&league=\${leagueId}\`;
+                const res = await fetch(url, { headers: { 'x-apisports-key': apiKey } });
+                const data = await res.json();
+                if (data.response && data.response.length > 0) {
+                  partidosAcumulados = partidosAcumulados.concat(data.response);
+                }
+              } catch (e) {
+                console.error('Error cargando liga ' + leagueId, e);
               }
-            } catch (err) {
-              console.error('Error:', err);
+            }
+
+            // Si no hay de ligas principales, busca la lista general del día
+            if (partidosAcumulados.length === 0) {
+              try {
+                const res = await fetch(\`https://v3.football.api-sports.io/fixtures?date=\${hoy}\`, {
+                  headers: { 'x-apisports-key': apiKey }
+                });
+                const data = await res.json();
+                partidosAcumulados = data.response || [];
+              } catch (e) {
+                console.error('Error en búsqueda general', e);
+              }
+            }
+
+            console.log('Total partidos encontrados:', partidosAcumulados.length);
+
+            let html = fs.readFileSync('index.html', 'utf8');
+
+            if (partidosAcumulados.length > 0) {
+              let cardsHtml = '';
+              partidosAcumulados.slice(0, 12).forEach((p, idx) => {
+                const hora = new Date(p.fixture.date).toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Lima' });
+                cardsHtml += \`
+                <div class=\"match-card bg-slate-900 border border-slate-800 hover:border-sky-500/50 rounded-2xl p-5 shadow-xl transition my-4\" data-team=\"\${p.teams.home.name.toLowerCase()} \${p.teams.away.name.toLowerCase()}\">
+                    <div class=\"flex justify-between items-center text-xs text-slate-400 border-b border-slate-800/80 pb-2.5\">
+                        <span class=\"font-semibold text-sky-400 flex items-center gap-1\">⚽ \${p.league.name.toUpperCase()} (\${p.league.country})</span>
+                        <span class=\"font-mono text-amber-400 font-bold\">\${hora} (Hora Perú)</span>
+                    </div>
+                    <div class=\"flex justify-between items-center my-4 px-2\">
+                        <div class=\"text-center font-bold text-base md:text-lg w-2/5 text-white\">\${p.teams.home.name}</div>
+                        <div class=\"text-xs font-extrabold px-3 py-1 bg-slate-800 rounded-full text-sky-400 border border-sky-900\">VS</div>
+                        <div class=\"text-center font-bold text-base md:text-lg w-2/5 text-white\">\${p.teams.away.name}</div>
+                    </div>
+                    <button onclick=\"toggleDetails('details-dynamic-\${idx}')\" class=\"w-full bg-slate-950 hover:bg-slate-800 border border-slate-800 text-sky-400 text-xs py-2 rounded-xl font-bold transition flex items-center justify-center gap-2\">
+                        <span>📊</span> Ver Análisis Completo y Combinadas Sugeridas
+                    </button>
+                    <div id=\"details-dynamic-\${idx}\" class=\"hidden mt-4 pt-4 border-t border-slate-800 space-y-4\">
+                        <div class=\"bg-slate-950 rounded-xl p-3 border border-sky-900/40 text-xs\">
+                            <span class=\"font-bold text-sky-400 uppercase\">🧠 Dictamen IA:</span>
+                            <p class=\"text-slate-300 text-[11px] mt-1\">Tendencia estadística calculada automáticamente para \${p.teams.home.name} vs \${p.teams.away.name}.</p>
+                        </div>
+                    </div>
+                </div>\`;
+              });
+
+              html = html.replace(/<div id=\"api-matches-dynamic\">[\s\S]*?<\/div>/, \`<div id=\"api-matches-dynamic\">\${cardsHtml}</div>\`);
+              fs.writeFileSync('index.html', html);
+              console.log('¡index.html actualizado exitosamente!');
             }
           }
           run();
@@ -88,5 +111,5 @@ jobs:
           git config --global user.name "GitHub Action Robot"
           git config --global user.email "action@github.com"
           git add index.html
-          git commit -m "🤖 Actualización automática diaria de partidos" || exit 0
+          git commit -m "🤖 Actualización automática con 5 horarios estratégicos" || exit 0
           git push
